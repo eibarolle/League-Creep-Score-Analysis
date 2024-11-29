@@ -1,3 +1,5 @@
 remote_theme: pages-themes/midnight@v0.2.0
 plugins:
   - jekyll-remote-theme 
+title: League Creep Score Analysis
+description: This is Ernest Ibarolle's and Haris Saif's Final Project for DSC80-FA24, which studies and predicts creep score for 2022 competitive League of Legends matches.
