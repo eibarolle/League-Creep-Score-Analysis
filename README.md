@@ -75,11 +75,31 @@ The column believed to be NMAR (Not Missing At Random) is the column 'teamid'. T
 The missingness of our focus column, 'cspm', will be tested on against the columns "league" and "side" using permutations. The significance level chosen is 0.1 for leniency, and the test statistic will be TVD because both other columns are categorical. For "league", the hypotheses are as follows:
 ##### Null Hypothesis: The distribution of league when cspm is missing is the same as the distribution of league when cspm isn't missing. In other words, cspm isn't MAR based off league.
 ##### Alternative Hypothesis: The distribution of league when cspm is missing is not the same as the distribution of league when cspm isn't missing. In other words, cspm is MAR based off league. 
-For the test, the tvd for the observation data is recorded by taking the value counts of each league's CSPM missingness. After that, 1000 permutations are conducted on the 'cspm_missing' column, and each permutation's tvd is recorded. Once the permutations are done, the p-value is recorded by checking the proportion of simulated tvds that are at least as large as the observed tvd.
+For the test, the tvd for the observation data is recorded by taking the value counts of each league's CSPM missingness. After that, 1000 permutations are conducted on the 'cspm_missing' column, and each permutation's tvd is recorded. Once the permutations are done, the p-value is recorded by checking the proportion of simulated tvds that are at least as large as the observed tvd. After the permutation tests, the observed statistic was recorded as 24.318279569892475, and the p-value was recorded as **0.0**. The empirical distribution of the TVDs is graphed below.
 <iframe src="plots/league_tvdf.html" width=800 height=600 frameBorder=0></iframe>
 From the permutation test's resulting p-value of 0.0 being smaller than the significance level, and no simulated tvd being at least as large as the observed tvd, we can reject the null hypothesis that the distribution of league when cspm is missing is the same as the distribution of league when cspm isn't missing. In other words, the missingness of cspm depends on the league column.
+A similar permutation test is conducted on cspm's missingness in relation to team side with the same test statistic and significance level.
+
+##### Null Hypothesis: The distribution of team side when cspm is missing is the same as the distribution of team side when cspm isn't missing. In other words, cspm isn't MAR based off team side.
+##### Alternative Hypothesis: The distribution of team side when cspm is missing is not the same as the distribution of team side when cspm isn't missing. In other words, cspm is MAR based off team side. 
+For the test, the tvd for the observation data is recorded by taking the value counts of each side's CSPM missingness. After that, 1000 permutations are conducted on the 'cspm_missing' column, and each permutation's tvd is recorded. Once the permutations are done, the p-value is recorded by checking the proportion of simulated tvds that are at least as large as the observed tvd. After the permutation tests, the observed statistic was recorded as 0.0, and the p-value was recorded as **1.0**. The empirical distribution of the TVDs is graphed below.
+<iframe src="plots/side_tvdf.html" width=800 height=600 frameBorder=0></iframe>
+From the p-value equaling 1.0 and thus being greater than the significance level, we fail to reject the null hypothesis that the distribution of team side when cspm is missing is the same as the distribution of team side when cspm isn't missing. In other words, the missingness of cspm isn't MAR based on the team side column.
 
 ## Hypothesis Testing
+To further investigate cspm's impact on winning League games, a permutation test can be conducted testing whether there is a significant difference in the cspm distribution of losing and winning teams. This investigation is beneficial for observing how much cspm affecting a participant's chances at winning.
+#### Null Hypothesis: 
+The proportion of "winning" results among teams with a higher creep score/minute (cspm) from the 2022 League of Legends Dataframe is equal to 0.5. This null hypothesis is chosen because the team rows are from matches against each other, meaning in all cases, one team must win, and the other must lose. Thus, the proportion of "winning" results is ${1}/{2}$, or 0.5.
+#### Alternative Hypothesis: 
+The proportion of "winning" results among teams with a higher creep score/minute from the 2022 League of Legends Dataframe is greater than 0.5. This alternative hypothesis is chosen because we hypothesize that with a larger creep score, teams will be able to accumulate more gold for better stats.
+#### Test statistic: 
+The win rate proportion for teams with a higher creep score/minute. This is chosen because the data can be cleaned and grouped into both results and the team with the higher cspm.
+#### Significance Level: 
+$\alpha$ = 0.05. This significance level is chosen because of its balance between finding significant patterns and reducing statistical errors.
+From the permutation test, the observed test statistic (proportion of higher cspm teams who won) equals 0.777, and the p-value for the test equals **0.0**. The empirical distribution of the proportions is graphed below.
+<iframe src="plots/q4.html" width=800 height=600 frameBorder=0></iframe>
+Because the p-value for the permutation test was lower than 0.05, we reject the null hypothesis that the proportion of "winning" results among teams with a higher creep score/minute (cspm) from the 2022 League of Legends Dataframe is equal to 0.5. This result represents how having a higher cspm is positively correlated with winning and thus both beneficial and sought after.
+
 ## Framing a Prediction Problem
 ### Problem Identification
 From the last part, we've learned that cspm has a considerable impact on winning results for competitive League of Legends matches. To prioritize this statistic for better games, creating a prediction model based off other columns/variables could be useful, such as league or champion. For this problem, we can utilize **regression** to predict cspm, since it's a numerical variable. So, a prediction problem now arises: **Can we predict a player's creep score/minute based off of other game statistics?**
