@@ -69,12 +69,23 @@ print(pivot_position.to_markdown(index=False))
 ```
 From the pivot table, we can observe that the means are significantly different for each position. Even accounting for team being the sum of each participant there, mid and bot have the highest mean cspm while sup(port) has by far the lowest. Thus, we should keep in mind position's impact when trying to predict cspm.
 ## Assessment of Missingness
+### NMAR Analysis
+The column believed to be NMAR (Not Missing At Random) is the column 'teamid'. This is because if a competitive match was played against a newer or exhibition team, they might not have official documentation and thus wouldn't have a teamid. Therefore, this column being missing would depend upon itself and the team circumstances, so it would count as NMAR. In addition, the 'teamid' column being missing doesn't follow any trends from other columns (in other words, no dependency). For additional data to test whether 'teamid' is NMAR or MAR (Missing At Random), it could be useful to record another column 'uniqueteam' on whether each participant has played for the same team throughout all of 2022 or not. This will make it easier to analyze whether the missingness is due to the column itself, the players, or a sampling error.
+### Missingness Dependency
+The missingness of our focus column, 'cspm', will be tested on against the columns "league" and "side" using permutations. The significance level chosen is 0.1 for leniency, and the test statistic will be TVD because both other columns are categorical. For "league", the hypotheses are as follows:
+##### Null Hypothesis: The distribution of league when cspm is missing is the same as the distribution of league when cspm isn't missing. In other words, cspm isn't MAR based off league.
+##### Alternative Hypothesis: The distribution of league when cspm is missing is not the same as the distribution of league when cspm isn't missing. In other words, cspm is MAR based off league. 
+For the test, the tvd for the observation data is recorded by taking the value counts of each league's CSPM missingness. After that, 1000 permutations are conducted on the 'cspm_missing' column, and each permutation's tvd is recorded. Once the permutations are done, the p-value is recorded by checking the proportion of simulated tvds that are at least as large as the observed tvd.
+<iframe src="plots/league_tvdf.html" width=800 height=600 frameBorder=0></iframe>
+From the permutation test's resulting p-value of 0.0 being smaller than the significance level, and no simulated tvd being at least as large as the observed tvd, we can reject the null hypothesis that the distribution of league when cspm is missing is the same as the distribution of league when cspm isn't missing. In other words, the missingness of cspm depends on the league column.
 
+## Hypothesis Testing
+## Framing a Prediction Problem
 ### Problem Identification
 From the last part, we've learned that cspm has a considerable impact on winning results for competitive League of Legends matches. To prioritize this statistic for better games, creating a prediction model based off other columns/variables could be useful, such as league or champion. For this problem, we can utilize **regression** to predict cspm, since it's a numerical variable. So, a prediction problem now arises: **Can we predict a player's creep score/minute based off of other game statistics?**
 
 As stated earlier, creep score/minute will be utilized as the response variable, since it's a reliable measure for creep score that accounts for varying game lengths. To evaluate our model, we will be using the numerical regression metric RMSE (Root Mean Squared Error) for interpretability compared to similar counterparts like MSE and balancing outliers.
-
-## Hypothesis Testing
-## Framing a Prediction Problem
 ## Baseline Model
+
+
+As stated earlier, creep score/minute will be utilized as the response variable, since it's a reliable measure for creep score that accounts for varying game lengths. To evaluate our model, we will be using the numerical regression metric RMSE (Root Mean Squared Error) for interpretability compared to similar counterparts like MSE and balancing outliers.
