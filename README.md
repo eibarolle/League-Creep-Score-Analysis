@@ -89,7 +89,3 @@ As stated earlier, creep score/minute will be utilized as the response variable,
 
 
 As stated earlier, creep score/minute will be utilized as the response variable, since it's a reliable measure for creep score that accounts for varying game lengths. To evaluate our model, we will be using the numerical regression metric RMSE (Root Mean Squared Error) for interpretability compared to similar counterparts like MSE and balancing outliers.
-
-## Hypothesis Testing
-## Framing a Prediction Problem
-## Baseline Model
