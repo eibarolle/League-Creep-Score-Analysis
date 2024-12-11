@@ -38,7 +38,7 @@ This Oracle's Elixir dataset includes various identifications and gameplay metri
 ### Data Cleaning
 To clean the dataset, some columns are in a string format instead of a numerical format, which makes it harder to graph and find measures of central tendency. Therefore, multiple columns, including cspm, are converted to floats or integers with astype(). In addition, to account for missing values, every empty value in the dataset is converted to np.nan using replace(). In addition, a column 'cspm_missing' is recorded as "Yes" if a "cspm" value is missing and "No" if not to further analyze its missingness. Finally, for participants, two new dataframes are created, one holding only players and the other holding only teams for further analysis on both. This is because team stats are aggregates of each of its players. Here is the head of the cleaned dataset with some relevant columns:
 ```py
-print(df[0:5][['gameid', 'participantid', 'playername', 'teamname', 'position', 'cspm', 'cspm_missing']])
+print(df[0:5][['gameid', 'participantid', 'playername', 'teamname', 'position', 'cspm', 'cspm_missing']].to_markdown(index=False))
 ```
 ### Univariate Data Analysis
 To start off, univariate data analysis is performed on the cspm column for the full cleaned dataset using a histogram.
@@ -65,7 +65,7 @@ From these findings, we learned that cspm has a positive correlation with earned
 ### Interesting Aggregates
 For aggregates, we grouped cspm by position and analyzed the mean of each group.
 ```py
-print(pivot_position)
+print(pivot_position.to_markdown(index=False))
 ```
 From the pivot table, we can observe that the means are significantly different for each position. Even accounting for team being the sum of each participant there, mid and bot have the highest mean cspm while sup(port) has by far the lowest. Thus, we should keep in mind position's impact when trying to predict cspm.
 ## Assessment of Missingness
