@@ -106,6 +106,87 @@ From the last part, we've learned that cspm has a considerable impact on winning
 
 As stated earlier, creep score/minute will be utilized as the response variable, since it's a reliable measure for creep score that accounts for varying game lengths. To evaluate our model, we will be using the numerical regression metric RMSE (Root Mean Squared Error) for interpretability compared to similar counterparts like MSE and balancing outliers.
 ## Baseline Model
+### Model Description
 
+For our baseline model, we aimed to predict a player’s creep score per minute (cspm) using two initial features:
 
-As stated earlier, creep score/minute will be utilized as the response variable, since it's a reliable measure for creep score that accounts for varying game lengths. To evaluate our model, we will be using the numerical regression metric RMSE (Root Mean Squared Error) for interpretability compared to similar counterparts like MSE and balancing outliers.
+1. `position` (categorical, nominal): The role the player occupies (e.g. top, jng, mid, bot, sup)
+
+2. `totalgold` (quantitative): The total amount of gold a player accumulated during the match.
+
+We applied a OneHotEncoder to the position column. This transformation converts the nominal categorical variable into multiple binary indicator variables, one for each possible position, ensuring that our linear model can properly handle categorical data.
+We used a StandardScaler on the totalgold column. Scaling numerical features ensures that differences in the scale of various predictors do not disproportionately influence the model’s coefficients.
+
+### Model Implementation
+
+We implemented these transformations and our model (a LinearRegression model) in a single sklearn Pipeline. The pipeline ensures that data processing and model fitting occur seamlessly in a single workflow. We split the dataset into training and test sets, trained the model on the training set, and evaluated it on the test set to measure its generalization performance.
+
+### Performance
+
+Using Root Mean Squared Error (RMSE) as our metric, the baseline model achieved a value of **1.2038**.
+
+An RMSE of 1.2 means that, on average, our predictions of cspm deviate from the true values by about 1.2 units. Without additional context, it’s difficult to say if this performance is “good” or “bad.” However, this gives us a starting point. Since cspm values often range roughly between 0 and 10 in professional play, an error of around 1.2 represents a considerable but not major deviation. Considering this is our baseline model with minimal feature engineering and no hyperparameter tuning, there is room for improvement.
+
+## Final Model
+
+### New Features Added
+
+1. `earnedgold` (quantitative): Indicates how much gold a player has earned through individual actions, directly reflecting their farming and objective control abilities. Since higher earned gold often correlates with better overall game performance, it may improve predictions of cspm.
+
+2. `kills` (quantitative): The number of kills a player secures can indirectly affect their opportunity to farm creeps. More kills can yield “map control,” allowing players to spend more time safely farming, potentially increasing cspm.
+
+By adding these parameters, we focused on relevant gameplay metrics that logically impact a player’s ability to farm more effectively.
+
+### Feature Transformations
+
+1. **Categorical Encoding**: We continued using `OneHotEncoder` for the player’s position, turning the nominal categorical variable into appropriate numerical inputs for the model.
+
+2. **Scaling**: All numeric features (totalgold, earnedgold, kills) were standardized using `StandardScaler`. This ensures that features are on a similar scale, preventing any single variable from dominating the model due to its magnitude.
+
+2. **Polynomial Features**: We introduced polynomial features to capture non-linear relationships. For instance, interactions between earnedgold and kills might influence cspm in ways not captured by a purely linear relationship.
+
+### Hyperparameter Tuning and Model Choice
+
+We employed a LinearRegression model and performed hyperparameter tuning using `GridSearchCV` to decide whether to include polynomial features (degree=1, meaning no additional complexity, or degree=2, allowing for squared and interaction terms). This search allowed us to systematically evaluate if non-linear transformations of features improved prediction quality. The best model used a polynomial degree of 2, which indicates that capturing non-linearities improved our predictive performance.
+
+### Performance and Comparison
+
+- Baseline Model RMSE: **1.2038**
+- Final Model RMSE: **0.8606**
+
+This model provided a substantial improvement from the baseline, indicating that the addition of the `earnedgold` and `kills` features and the polynomial transformations greatly enhanced our ability to predict `cspm`.
+
+## Fairness Analysis
+
+#### Groups and Justification
+
+For the fairness analysis, we examined whether our final model’s predictive performance (in terms of RMSE) differs between two distinct player groups defined by their in-game role. Specifically, we focused on:
+
+1. **Group X:** Top-lane players (`position == 'top'`)
+
+2. **Group Y:** Mid-lane players (`position == 'mid'`)
+
+Both top and mid players frequently farm lane minions, making them ideal groups to compare. If our model is to be accurate, it is important to ensure that it does not favor one lane over another in its predictions of creep score per minute (`cspm`).
+
+#### Choice of Evaluation Metric
+
+Since we built a regression model to predict `cspm`, we used RMSE (Root Mean Squared Error) as our performance metric. RMSE measures the average prediction error magnitude, providing an intuitive sense of how far off our predictions are from the true values.
+
+#### Hypotheses
+
+1. **Null Hypothesis (H0):** The model is fair. The difference in RMSE between top-lane and mid-lane players is due to random chance. Formally, there is no systematic difference in performance between the two groups.
+
+2. **Alternative Hypothesis (H1):** The model is unfair. The difference in RMSE is not due to chance, indicating that the model performs systematically differently for top-lane players compared to mid-lane players.
+
+#### Test Statistic and Procedure
+
+The statistical proccess we employed during this analysis is as follows:
+
+1. **Observe Difference:** Compute RMSE separately for top-lane and mid-lane subsets of the test data. Find the absolute difference in their RMSEs.
+
+2. **Permutation Test:** Combine both groups, shuffle their “group labels” many times, and recompute the RMSE difference for each shuffled scenario. This simulates the distribution of differences we would expect under the null hypothesis.
+
+3. **Compute p-value:** The calculated p-value from our permutation test was **0.752**.
+
+At a p-value of 0.752, we reject fail to reject the null hypothesis. We do not have sufficient statistical evidence to conclude that our model treats these two groups differently, and the observed difference in performance between top-lane and mid-lane players could easily occur by random chance.
+
